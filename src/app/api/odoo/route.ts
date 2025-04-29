@@ -126,33 +126,16 @@ async function getCompanyUen(companyId: number, uid: number): Promise<string> {
 // Helper function to write response to file
 async function writeResponseToFile(response: string, filename: string) {
   try {
-    // Create debug-logs directory if it doesn't exist
-    const debugLogsDir = path.join(process.cwd(), 'debug-logs');
-    if (!fs.existsSync(debugLogsDir)) {
-      console.log('Creating debug-logs directory...');
-      fs.mkdirSync(debugLogsDir, { recursive: true });
-    }
-
-    // Check if directory is writable
-    try {
-      fs.accessSync(debugLogsDir, fs.constants.W_OK);
-    } catch (error) {
-      console.error('Directory is not writable:', debugLogsDir);
-      throw new Error('Directory is not writable');
-    }
-
-    // Generate a timestamp for the filename
+    // Generate a timestamp for the log
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const uniqueFilename = `${filename.split('.')[0]}-${timestamp}.${filename.split('.').pop()}`;
     
-    // Write the file to the debug-logs directory
-    const filePath = path.join(debugLogsDir, uniqueFilename);
-    console.log('Writing file to:', filePath);
-    fs.writeFileSync(filePath, response);
-    console.log(`Wrote response to ${filePath}`);
+    // Log the response instead of writing to file
+    console.log(`[${uniqueFilename}]`, response);
+    return true;
   } catch (error) {
-    console.error('Error writing response to file:', error);
-    console.error('Attempted to write to path:', path.join(process.cwd(), 'debug-logs', filename));
+    console.error('Error logging response:', error);
+    return false;
   }
 }
 
