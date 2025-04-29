@@ -1,4 +1,4 @@
-import { XmlRpcClient } from '@foxglove/xmlrpc';
+import * as xmlrpc from 'xmlrpc';
 
 interface Payment {
   id: number;
@@ -21,20 +21,20 @@ const RENEWAL_COLLECTION_DB = process.env.ODOO_DB || '';
 const RENEWAL_COLLECTION_USERNAME = process.env.ODOO_USERNAME || '';
 const RENEWAL_COLLECTION_PASSWORD = process.env.ODOO_PASSWORD || '';
 
-let commonClient: XmlRpcClient | null = null;
-let objectClient: XmlRpcClient | null = null;
+let commonClient: xmlrpc.Client | null = null;
+let objectClient: xmlrpc.Client | null = null;
 let renewalCollectionUid: number | null = null;
 
 const getCommonClient = async () => {
   if (!commonClient) {
-    commonClient = new XmlRpcClient(RENEWAL_COLLECTION_URL + '/xmlrpc/2/common');
+    commonClient = xmlrpc.createClient(RENEWAL_COLLECTION_URL + '/xmlrpc/2/common');
   }
   return commonClient;
 };
 
 const getObjectClient = async () => {
   if (!objectClient) {
-    objectClient = new XmlRpcClient(RENEWAL_COLLECTION_URL + '/xmlrpc/2/object');
+    objectClient = xmlrpc.createClient(RENEWAL_COLLECTION_URL + '/xmlrpc/2/object');
   }
   return objectClient;
 };
