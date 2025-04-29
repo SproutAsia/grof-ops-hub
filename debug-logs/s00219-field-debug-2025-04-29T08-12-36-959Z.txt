@@ -1,0 +1,24 @@
+=== S00219 Debug Info ===
+Full line: <value><string>paid</string></value>
+Match result: ["<string>paid</string>","paid"]
+Current order: {
+  "id": 219,
+  "so": "S00219",
+  "date_order": "2025-03-21 07:15:23",
+  "partner_id": [
+    1179,
+    "ASP PARTS PTE. LTD., Alexandre Schreiner Piccolli"
+  ],
+  "email": "alexandre@asp-autoparts.com",
+  "uen": "202431123G",
+  "phone": "",
+  "amount_total": 300,
+  "state": "sale",
+  "x_studio_existing_subs_from_chargebee": "Yes",
+  "user_id": [
+    0,
+    "Krizza Mercado"
+  ],
+  "x_studio_related_field_2qf_1iprtjf43": "paid"
+}
+========================

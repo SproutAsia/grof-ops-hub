@@ -1,0 +1,24 @@
+=== Checking S00219 Payment Status ===
+Order object: {
+  "id": 219,
+  "so": "S00219",
+  "partner_id": [
+    1179,
+    "ASP PARTS PTE. LTD., Alexandre Schreiner Piccolli"
+  ],
+  "email": "alexandre@asp-autoparts.com",
+  "uen": "202431123G",
+  "phone": "",
+  "date_order": "2025-03-21 07:15:23",
+  "create_date": "2025-03-17 02:24:11",
+  "amount_total": 300,
+  "state": "sale",
+  "x_studio_existing_subs_from_chargebee": "Yes",
+  "x_studio_related_field_9ma_1ipqq874u": "INV/2025/00070",
+  "x_studio_related_field_2qf_1iprtjf43": "paid",
+  "user_id": [
+    0,
+    "Krizza Mercado"
+  ]
+}
+Payment field value: paid

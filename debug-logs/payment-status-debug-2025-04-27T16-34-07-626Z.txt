@@ -1,0 +1,1 @@
+Making request to: http://localhost:3000/api/stripe/search-transaction?so=S00263
