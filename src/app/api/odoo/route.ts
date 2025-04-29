@@ -6,6 +6,12 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Prevent static generation of this route
+export const dynamic = 'force-dynamic';
+
+// Check if we're in a build environment
+const isBuild = process.env.NEXT_PHASE === 'phase-production-build';
+
 // Parse Odoo URL only if it exists
 let odooUrl: URL | null = null;
 if (process.env.ODOO_URL) {
@@ -652,6 +658,10 @@ export async function connectToOdoo() {
 
 // Update the getSaleOrders function to include payment status check
 export async function getSaleOrders(uid: number, month: string, request: Request) {
+  if (isBuild) {
+    return [];
+  }
+
   try {
     if (!process.env.ODOO_URL || !process.env.ODOO_DB || !process.env.ODOO_PASSWORD) {
       throw new Error('Missing required Odoo environment variables');
@@ -856,12 +866,16 @@ export async function getSaleOrders(uid: number, month: string, request: Request
     return orders;
   } catch (error) {
     console.error('Error fetching sale orders:', error);
-    throw error;
+    return [];
   }
 }
 
 // Update the GET function to pass the request to getSaleOrders
 export async function GET(request: Request) {
+  if (isBuild) {
+    return NextResponse.json({ message: 'API route not available during build' }, { status: 200 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const month = searchParams.get('month');
@@ -932,13 +946,17 @@ export async function GET(request: Request) {
     
     return NextResponse.json(ordersWithFollowUps);
   } catch (error) {
-    console.error('Error in Odoo proxy:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error in Odoo API:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
 // Update checkPaymentStatus to just check the payment field
 export async function checkPaymentStatus(uid: number, order: any, request: Request): Promise<boolean> {
+  if (isBuild) {
+    return false;
+  }
+
   try {
     if (!order || !order.so) {
       await writeResponseToFile('Invalid order object or missing SO number\n', 'payment-status-debug.txt');
@@ -982,7 +1000,7 @@ export async function checkPaymentStatus(uid: number, order: any, request: Reque
     await writeResponseToFile(`No paid payment found for SO: ${order.so}\n`, 'payment-status-debug.txt');
     return false;
   } catch (error) {
-    await writeResponseToFile(`Error checking payment status: ${error}\n`, 'payment-status-debug.txt');
+    console.error('Error checking payment status:', error);
     return false;
   }
 } 
