@@ -18,7 +18,7 @@ async function testPaymentStatus() {
     const month = '2025-03';
     console.log('Fetching orders for month:', month);
 
-    const orders = await getSaleOrders(uid, month);
+    const orders = await getSaleOrders(uid, month, new Request('http://localhost:3000'));
     console.log(`Found ${orders.length} orders`);
 
     // Find SO S00219
@@ -34,8 +34,12 @@ async function testPaymentStatus() {
 
     // Check payment status
     console.log('\nChecking payment status...');
-    const hasPayment = await checkPaymentStatus(uid, targetOrder);
+    const hasPayment = await checkPaymentStatus(uid, targetOrder, new Request('http://localhost:3000'));
     console.log('Payment status:', hasPayment ? 'PAID' : 'NOT PAID');
+
+    return {
+      hasPayment
+    };
 
   } catch (error) {
     console.error('Test failed:', error);

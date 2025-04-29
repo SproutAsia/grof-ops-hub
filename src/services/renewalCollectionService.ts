@@ -119,27 +119,32 @@ export const fetchRenewalCollectionData = async () => {
     const salesOrders = salesOrdersResponse as unknown as SalesOrder[];
 
     // First, let's check all payments without filtering to see what states exist
-    const allPaymentsResponse = await objectClient.methodCall('execute_kw', [
-      RENEWAL_COLLECTION_DB,
-      uid,
-      RENEWAL_COLLECTION_PASSWORD,
-      'account.payment',
-      'search_read',
-      [
+    const allPaymentsResponse = await new Promise<any>((resolve, reject) => {
+      objectClient.methodCall('execute_kw', [
+        RENEWAL_COLLECTION_DB,
+        uid,
+        RENEWAL_COLLECTION_PASSWORD,
+        'account.payment',
+        'search_read',
         [
-          ['state', '!=', 'draft'],
-          ['date', '>=', beginningDate.toISOString().split('T')[0]],
-          ['date', '<=', weeks[0].end.toISOString().split('T')[0]],
+          [
+            ['state', '!=', 'draft'],
+            ['date', '>=', beginningDate.toISOString().split('T')[0]],
+            ['date', '<=', weeks[0].end.toISOString().split('T')[0]],
+          ],
+          [
+            'id',
+            'amount',
+            'date',
+            'x_studio_related_field_2p3_1iptocq6m',
+            'x_studio_payment_state_1',
+          ],
         ],
-        [
-          'id',
-          'amount',
-          'date',
-          'x_studio_related_field_2p3_1iptocq6m',
-          'x_studio_payment_state_1',
-        ],
-      ],
-    ]);
+      ], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
 
     const allPayments = allPaymentsResponse as unknown as Payment[];
     console.log('All Payment States:', Array.from(new Set(allPayments.map(p => p.x_studio_payment_state_1))));
