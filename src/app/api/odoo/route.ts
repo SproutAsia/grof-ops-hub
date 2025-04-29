@@ -6,8 +6,15 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Parse Odoo URL
-const odooUrl = new URL(process.env.ODOO_URL!);
+// Parse Odoo URL only if it exists
+let odooUrl: URL | null = null;
+if (process.env.ODOO_URL) {
+  try {
+    odooUrl = new URL(process.env.ODOO_URL);
+  } catch (error) {
+    console.error('Invalid ODOO_URL:', error);
+  }
+}
 
 // Helper function to extract value from XML-RPC response
 function extractValueFromXmlResponse(xmlText: string): any {
@@ -22,6 +29,10 @@ function extractValueFromXmlResponse(xmlText: string): any {
 // Add this new function to get all partner details in one call
 async function getCompanyUen(companyId: number, uid: number): Promise<string> {
   try {
+    if (!process.env.ODOO_URL || !process.env.ODOO_DB || !process.env.ODOO_PASSWORD) {
+      throw new Error('Missing required Odoo environment variables');
+    }
+
     console.log('Checking UEN from res.company for company ID:', companyId);
     
     const xmlRequest = `<?xml version="1.0"?>
@@ -602,14 +613,9 @@ async function checkEndpoint() {
 // Connect to Odoo and get UID
 export async function connectToOdoo() {
   try {
-    console.log('Attempting to connect to Odoo with:', {
-      url: process.env.ODOO_URL,
-      db: process.env.ODOO_DB,
-      username: process.env.ODOO_USERNAME,
-      host: odooUrl.hostname,
-      port: parseInt(odooUrl.port || "443", 10),
-      path: "/xmlrpc/2/common"
-    });
+    if (!process.env.ODOO_URL || !process.env.ODOO_DB || !process.env.ODOO_USERNAME || !process.env.ODOO_PASSWORD) {
+      throw new Error('Missing required Odoo environment variables');
+    }
 
     const xmlRequest = `<?xml version="1.0"?>
 <methodCall>
@@ -622,8 +628,6 @@ export async function connectToOdoo() {
   </params>
 </methodCall>`;
 
-    console.log('XML-RPC Request:', xmlRequest);
-
     const response = await fetch(`${process.env.ODOO_URL}/xmlrpc/2/common`, {
       method: 'POST',
       headers: {
@@ -634,20 +638,11 @@ export async function connectToOdoo() {
     });
 
     const responseText = await response.text();
-    console.log('Raw authentication response:', responseText);
-    console.log('Response status:', response.status);
-    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
     const uid = extractValueFromXmlResponse(responseText);
     if (!uid) {
       throw new Error('Failed to extract UID from response');
     }
 
-    console.log('Authentication successful, UID:', uid);
     return uid;
   } catch (error) {
     console.error('Connection error:', error);
@@ -658,6 +653,10 @@ export async function connectToOdoo() {
 // Update the getSaleOrders function to include payment status check
 export async function getSaleOrders(uid: number, month: string, request: Request) {
   try {
+    if (!process.env.ODOO_URL || !process.env.ODOO_DB || !process.env.ODOO_PASSWORD) {
+      throw new Error('Missing required Odoo environment variables');
+    }
+
     console.log('Getting sale orders for UID:', uid, 'Month:', month);
 
     // Parse the month parameter (format: YYYY-MM)
@@ -856,7 +855,7 @@ export async function getSaleOrders(uid: number, month: string, request: Request
 
     return orders;
   } catch (error) {
-    console.error('Error in getSaleOrders:', error);
+    console.error('Error fetching sale orders:', error);
     throw error;
   }
 }
