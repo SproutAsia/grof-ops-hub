@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<methodResponse>
+<params>
+<param>
+<value><array><data>
+<value><struct>
+<member>
+<name>id</name>
+<value><int>968</int></value>
+</member>
+<member>
+<name>email</name>
+<value><string>windypolim@yahoo.com</string></value>
+</member>
+<member>
+<name>phone</name>
+<value><string>+65 8813 4233</string></value>
+</member>
+<member>
+<name>parent_id</name>
+<value><array><data>
+<value><int>1048</int></value>
+<value><string>GREEN ENERGY RENEWABLE PTE. LTD.</string></value>
+</data></array></value>
+</member>
+<member>
+<name>l10n_sg_unique_entity_number</name>
+<value><boolean>0</boolean></value>
+</member>
+</struct></value>
+</data></array></value>
+</param>
+</params>
+
+</methodResponse>

@@ -1,0 +1,21 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model FollowUp {
+  id        String   @id @default(cuid())
+  saleId    String   // Odoo sale order ID
+  channels  String[] // Array of follow-up channels
+  notes     String
+  createDate DateTime @default(now())
+  userId    String   // User who created the follow-up
+  userEmail String   // Email of the user who created the follow-up
+} 

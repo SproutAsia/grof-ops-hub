@@ -1,0 +1,2 @@
+Payment status check result: true
+New state: sale

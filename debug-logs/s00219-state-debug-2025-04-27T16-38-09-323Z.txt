@@ -1,0 +1,2 @@
+=== Processing S00219 ===
+Initial state: sale

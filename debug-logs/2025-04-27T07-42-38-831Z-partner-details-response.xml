@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<methodResponse>
+<params>
+<param>
+<value><array><data>
+<value><struct>
+<member>
+<name>id</name>
+<value><int>1639</int></value>
+</member>
+<member>
+<name>email</name>
+<value><string>haziqfaris@reka.re</string></value>
+</member>
+<member>
+<name>phone</name>
+<value><string>+60 10-233 3893</string></value>
+</member>
+<member>
+<name>parent_id</name>
+<value><array><data>
+<value><int>1638</int></value>
+<value><string>HAZIQ FARIS</string></value>
+</data></array></value>
+</member>
+<member>
+<name>l10n_sg_unique_entity_number</name>
+<value><boolean>0</boolean></value>
+</member>
+</struct></value>
+</data></array></value>
+</param>
+</params>
+
+</methodResponse>
