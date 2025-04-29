@@ -1,0 +1,1 @@
+Checking Stripe payment for SO: S00267

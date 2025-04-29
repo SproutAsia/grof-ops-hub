@@ -1,0 +1,1 @@
+Making request to: undefined/api/stripe/search-transaction?so=S00485

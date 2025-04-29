@@ -1,0 +1,1 @@
+Error checking payment status: TypeError: Failed to parse URL from undefined/api/stripe/search-transaction?so=S00505

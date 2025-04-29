@@ -1,0 +1,6 @@
+=== Checking S00219 Payment Status ===
+Order object: {
+  "so": "S00219",
+  "x_studio_related_field_9ma_1ipqq874u": "INV/2025/00070"
+}
+Payment field value: undefined

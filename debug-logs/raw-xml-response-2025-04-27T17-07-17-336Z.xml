@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<methodResponse>
+<fault>
+<value><struct>
+<member>
+<name>faultCode</name>
+<value><int>1</int></value>
+</member>
+<member>
+<name>faultString</name>
+<value><string>Traceback (most recent call last):
+  File "/home/odoo/src/odoo/odoo/addons/base/controllers/rpc.py", line 165, in xmlrpc_2
+    response = self._xmlrpc(service)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/odoo/src/odoo/odoo/addons/base/controllers/rpc.py", line 139, in _xmlrpc
+    result = dispatch_rpc(service, method, params)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/odoo/src/odoo/odoo/http.py", line 398, in dispatch_rpc
+    return dispatch(method, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/odoo/src/odoo/odoo/service/model.py", line 58, in dispatch
+    res = execute_kw(db, uid, *params[3:])
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/odoo/src/odoo/odoo/service/model.py", line 81, in execute_kw
+    return execute(db, uid, obj, method, *args, **kw or {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/odoo/src/odoo/odoo/service/model.py", line 87, in execute
+    res = execute_cr(cr, uid, obj, method, *args, **kw)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/odoo/src/odoo/odoo/service/model.py", line 72, in execute_cr
+    result = retrying(partial(odoo.api.call_kw, recs, method, args, kw), env)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/odoo/src/odoo/odoo/service/model.py", line 156, in retrying
+    result = func()
+             ^^^^^^
+  File "/home/odoo/src/odoo/odoo/api.py", line 533, in call_kw
+    result = getattr(recs, name)(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/odoo/src/odoo/odoo/models.py", line 6121, in search_read
+    records = self.search_fetch(domain or [], fields, offset=offset, limit=limit, order=order)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/odoo/src/odoo/odoo/models.py", line 1773, in search_fetch
+    query = self._search(domain, offset=offset, limit=limit, order=order or self._order)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/odoo/src/odoo/odoo/models.py", line 5796, in _search
+    query = self._where_calc(domain)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/odoo/src/odoo/odoo/models.py", line 5547, in _where_calc
+    return expression.expression(domain, self).query
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/odoo/src/odoo/odoo/osv/expression.py", line 781, in __init__
+    self.expression = domain_combine_anies(domain, model)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/odoo/src/odoo/odoo/osv/expression.py", line 599, in domain_combine_anies
+    domain_any = _anyfy_leaves(domain, model)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/odoo/src/odoo/odoo/osv/expression.py", line 366, in _anyfy_leaves
+    left, operator, right = item = tuple(item)
+    ^^^^^^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 3, got 2)
+</string></value>
+</member>
+</struct></value>
+</fault>
+
+</methodResponse>

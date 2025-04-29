@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<methodResponse>
+<params>
+<param>
+<value><array><data>
+<value><struct>
+<member>
+<name>id</name>
+<value><int>1631</int></value>
+</member>
+<member>
+<name>email</name>
+<value><string>sathya@beeshmaadvisory.com</string></value>
+</member>
+<member>
+<name>phone</name>
+<value><string>+91 98452 11551</string></value>
+</member>
+<member>
+<name>parent_id</name>
+<value><array><data>
+<value><int>1632</int></value>
+<value><string>MILESTONE MARKETING AGENCY PTE. LTD.</string></value>
+</data></array></value>
+</member>
+<member>
+<name>l10n_sg_unique_entity_number</name>
+<value><boolean>0</boolean></value>
+</member>
+</struct></value>
+</data></array></value>
+</param>
+</params>
+
+</methodResponse>
