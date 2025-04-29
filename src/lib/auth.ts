@@ -1,16 +1,32 @@
 import { NextAuthOptions } from "next-auth";
 import AzureADProvider from "next-auth/providers/azure-ad";
 
+// Validate required environment variables
+const requiredEnvVars = [
+  'AZURE_AD_CLIENT_ID',
+  'AZURE_AD_CLIENT_SECRET',
+  'AZURE_AD_TENANT_ID',
+  'NEXTAUTH_URL',
+  'NEXTAUTH_SECRET'
+];
+
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    throw new Error(`Missing required environment variable: ${envVar}`);
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     AzureADProvider({
       id: "microsoft",
+      name: "Microsoft",
       clientId: process.env.AZURE_AD_CLIENT_ID!,
       clientSecret: process.env.AZURE_AD_CLIENT_SECRET!,
-      tenantId: process.env.AZURE_AD_TENANT_ID,
+      tenantId: process.env.AZURE_AD_TENANT_ID!,
       authorization: {
         params: {
-          scope: "openid profile email",
+          scope: "openid profile email offline_access",
         },
       },
     }),
