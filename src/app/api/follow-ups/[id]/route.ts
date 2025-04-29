@@ -5,7 +5,14 @@ import { authOptions } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
+// Check if we're in a build environment
+const isBuild = process.env.NEXT_PHASE === 'phase-production-build';
+
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  if (isBuild) {
+    return NextResponse.json({ message: 'API route not available during build' }, { status: 200 });
+  }
+
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -30,6 +37,10 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 }
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
+  if (isBuild) {
+    return NextResponse.json({ message: 'API route not available during build' }, { status: 200 });
+  }
+
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -58,6 +69,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+  if (isBuild) {
+    return NextResponse.json({ message: 'API route not available during build' }, { status: 200 });
+  }
+
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
