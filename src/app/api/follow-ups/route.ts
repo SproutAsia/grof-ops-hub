@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       console.log('Unauthorized attempt to create follow-up');
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 }); 
     }
 
     const { saleId, channels, notes } = await request.json();
