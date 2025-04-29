@@ -24,7 +24,7 @@ export async function POST(request: Request) {
         userId: session.user.email || '',
         userEmail: session.user.email || '',
       },
-    });
+    }); 
 
     console.log('Follow-up created successfully:', followUp);
     return NextResponse.json(followUp);
