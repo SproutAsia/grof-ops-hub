@@ -5,6 +5,9 @@ import { authOptions } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
+// Prevent static generation of this route
+export const dynamic = 'force-dynamic';
+
 // Check if we're in a build environment
 const isBuild = process.env.NEXT_PHASE === 'phase-production-build';
 
