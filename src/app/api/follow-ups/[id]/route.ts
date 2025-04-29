@@ -55,4 +55,34 @@ export async function GET(request: Request, { params }: { params: { id: string }
     console.error('Error fetching follow-up:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
+}
+
+export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const followUpId = params.id;
+    if (!followUpId) {
+      return NextResponse.json({ error: 'Follow-up ID is required' }, { status: 400 });
+    }
+
+    const { channels, notes } = await request.json();
+
+    // Update the follow-up
+    const updatedFollowUp = await prisma.followUp.update({
+      where: { id: followUpId },
+      data: {
+        channels,
+        notes,
+      },
+    });
+
+    return NextResponse.json(updatedFollowUp);
+  } catch (error) {
+    console.error('Error updating follow-up:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
 } 
