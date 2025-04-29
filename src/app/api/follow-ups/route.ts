@@ -21,6 +21,7 @@ export async function POST(request: Request) {
         saleId,
         channels,
         notes,
+        userId: session.user.email || '',
         userEmail: session.user.email || '',
       },
     });
