@@ -1,11 +1,26 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+// Prevent static generation of this route
+export const dynamic = 'force-dynamic';
+
+// Check if we're in a build environment
+const isBuild = process.env.NEXT_PHASE === 'phase-production-build';
+
+// Initialize Stripe only if not in build environment
+const stripe = !isBuild ? new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-03-31.basil',
-});
+}) : null;
 
 export async function POST(request: Request) {
+  if (isBuild) {
+    return NextResponse.json({ message: 'Webhook not available during build' }, { status: 200 });
+  }
+
+  if (!stripe) {
+    return NextResponse.json({ error: 'Stripe client not initialized' }, { status: 500 });
+  }
+
   const body = await request.text();
   const signature = request.headers.get('stripe-signature')!;
 
