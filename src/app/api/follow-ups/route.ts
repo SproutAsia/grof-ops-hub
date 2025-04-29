@@ -3,17 +3,22 @@ import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
-const prisma = new PrismaClient();
-
 // Prevent static generation of this route
 export const dynamic = 'force-dynamic';
 
 // Check if we're in a build environment
 const isBuild = process.env.NEXT_PHASE === 'phase-production-build';
 
+// Initialize Prisma only if not in build environment
+const prisma = !isBuild ? new PrismaClient() : null;
+
 export async function POST(request: Request) {
   if (isBuild) {
     return NextResponse.json({ message: 'API route not available during build' }, { status: 200 });
+  }
+
+  if (!prisma) {
+    return NextResponse.json({ error: 'Database client not initialized' }, { status: 500 });
   }
 
   try {
@@ -47,6 +52,10 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   if (isBuild) {
     return NextResponse.json({ message: 'API route not available during build' }, { status: 200 });
+  }
+
+  if (!prisma) {
+    return NextResponse.json({ error: 'Database client not initialized' }, { status: 500 });
   }
 
   try {
