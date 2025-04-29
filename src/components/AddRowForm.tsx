@@ -10,7 +10,7 @@ interface AddRowFormProps {
 const AddRowForm: React.FC<AddRowFormProps> = ({ onAddRow }) => {
   const [formData, setFormData] = useState<Partial<SpreadsheetRow>>({
     priority: 'Medium',
-    paymentStatus: '',
+    paymentStatus: 'Pending',
     followUpCount: 0,
     followUpChannels: [],
   });
@@ -29,7 +29,7 @@ const AddRowForm: React.FC<AddRowFormProps> = ({ onAddRow }) => {
       so: formData.so || '',
       creationDate: formData.creationDate || new Date(),
       customer: formData.customer || '',
-      company: formData.company || '',
+      formattedCustomer: formData.formattedCustomer || '',
       contactNumber: formData.contactNumber || '',
       emailAddress: formData.emailAddress || '',
       uen: formData.uen || '',
@@ -37,17 +37,12 @@ const AddRowForm: React.FC<AddRowFormProps> = ({ onAddRow }) => {
       amount: formData.amount || 0,
       type: formData.type || '',
       priority: formData.priority || 'Medium',
-      paymentStatus: formData.paymentStatus || '',
+      paymentStatus: formData.paymentStatus || 'Pending',
       pic: formData.pic || '',
       followUpChannels: formData.followUpChannels || [],
       followUpNotes: formData.followUpNotes || '',
       followUpCount: formData.followUpCount || 0,
       lastFollowUpDate: formData.lastFollowUpDate || new Date(),
-      partner_id: formData.partner_id || [0, ''],
-      create_date: formData.create_date || '',
-      existing_subs_from_chargebee: formData.existing_subs_from_chargebee || '',
-      x_studio_cb_subscription_id: formData.x_studio_cb_subscription_id || '',
-      existingChargebeeSubs: formData.existingChargebeeSubs || null,
     };
     onAddRow(newRow);
     setFormData({});

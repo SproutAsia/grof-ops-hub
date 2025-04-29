@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectToOdoo, getSaleOrders, checkPaymentStatus } from '../odoo/route';
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     console.log('Starting test for SO S00219...');
     
@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     const month = '2025-03';
     console.log('Fetching orders for month:', month);
 
-    const orders = await getSaleOrders(uid, month, request);
+    const orders = await getSaleOrders(uid, month);
     console.log(`Found ${orders.length} orders`);
 
     // Find SO S00219
@@ -112,7 +112,7 @@ export async function GET(request: Request) {
     const paymentResponseText = await paymentResponse.text();
     console.log('Payment response:', paymentResponseText);
 
-    const hasPayment = await checkPaymentStatus(uid, targetOrder, request);
+    const hasPayment = await checkPaymentStatus(uid, targetOrder);
 
     return NextResponse.json({ 
       success: true,
