@@ -1,7 +1,17 @@
 import { NextResponse } from 'next/server';
 import { connectToOdoo, getSaleOrders, checkPaymentStatus } from '../odoo/route';
 
+// Prevent static generation of this route
+export const dynamic = 'force-dynamic';
+
+// Check if we're in a build environment
+const isBuild = process.env.NEXT_PHASE === 'phase-production-build';
+
 export async function GET(request: Request) {
+  if (isBuild) {
+    return NextResponse.json({ message: 'API route not available during build' }, { status: 200 });
+  }
+
   try {
     console.log('Starting test for SO S00219...');
     
