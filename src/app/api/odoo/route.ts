@@ -4,17 +4,18 @@ import fs from 'fs';
 import path from 'path';
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
-
 // Prevent static generation of this route
 export const dynamic = 'force-dynamic';
 
 // Check if we're in a build environment
 const isBuild = process.env.NEXT_PHASE === 'phase-production-build';
 
-// Parse Odoo URL only if it exists
+// Initialize Prisma only if not in build environment
+const prisma = !isBuild ? new PrismaClient() : null;
+
+// Parse Odoo URL only if it exists and not in build environment
 let odooUrl: URL | null = null;
-if (process.env.ODOO_URL) {
+if (!isBuild && process.env.ODOO_URL) {
   try {
     odooUrl = new URL(process.env.ODOO_URL);
   } catch (error) {
@@ -34,6 +35,10 @@ function extractValueFromXmlResponse(xmlText: string): any {
 
 // Add this new function to get all partner details in one call
 async function getCompanyUen(companyId: number, uid: number): Promise<string> {
+  if (isBuild) {
+    return '';
+  }
+
   try {
     if (!process.env.ODOO_URL || !process.env.ODOO_DB || !process.env.ODOO_PASSWORD) {
       throw new Error('Missing required Odoo environment variables');
@@ -104,16 +109,16 @@ async function getCompanyUen(companyId: number, uid: number): Promise<string> {
     });
 
     const responseText = await response.text();
-    console.log('Full company UEN response:', responseText);
+    console.log('Response for company UEN:', responseText);
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    // Parse the response to get the UEN
+    const uenMatch = responseText.match(/<value><string>([^<]+)<\/string><\/value>/);
+    if (uenMatch) {
+      return uenMatch[1];
     }
-
-    const uenMatch = responseText.match(/<member>\s*<name>l10n_sg_unique_entity_number<\/name>\s*<value><string>([^<]+)<\/string><\/value>\s*<\/member>/);
-    return uenMatch ? uenMatch[1] : '';
+    return '';
   } catch (error) {
-    console.error('Error checking company UEN:', error);
+    console.error('Error getting company UEN:', error);
     return '';
   }
 }
@@ -618,6 +623,10 @@ async function checkEndpoint() {
 
 // Connect to Odoo and get UID
 export async function connectToOdoo() {
+  if (isBuild) {
+    return 0;
+  }
+
   try {
     if (!process.env.ODOO_URL || !process.env.ODOO_DB || !process.env.ODOO_USERNAME || !process.env.ODOO_PASSWORD) {
       throw new Error('Missing required Odoo environment variables');
@@ -651,7 +660,7 @@ export async function connectToOdoo() {
 
     return uid;
   } catch (error) {
-    console.error('Connection error:', error);
+    console.error('Error connecting to Odoo:', error);
     throw error;
   }
 }
@@ -865,8 +874,8 @@ export async function getSaleOrders(uid: number, month: string, request: Request
 
     return orders;
   } catch (error) {
-    console.error('Error fetching sale orders:', error);
-    return [];
+    console.error('Error getting sale orders:', error);
+    throw error;
   }
 }
 
@@ -874,6 +883,10 @@ export async function getSaleOrders(uid: number, month: string, request: Request
 export async function GET(request: Request) {
   if (isBuild) {
     return NextResponse.json({ message: 'API route not available during build' }, { status: 200 });
+  }
+
+  if (!prisma) {
+    return NextResponse.json({ error: 'Database client not initialized' }, { status: 500 });
   }
 
   try {
