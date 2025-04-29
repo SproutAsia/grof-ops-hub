@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectToOdoo, getSaleOrders, checkPaymentStatus } from '../odoo/route';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     console.log('Starting test for SO S00219...');
     
@@ -13,7 +13,7 @@ export async function GET() {
     const month = '2025-03';
     console.log('Fetching orders for month:', month);
 
-    const orders = await getSaleOrders(uid, month);
+    const orders = await getSaleOrders(uid, month, request);
     console.log(`Found ${orders.length} orders`);
 
     // Find SO S00219
@@ -64,9 +64,9 @@ export async function GET() {
                   <value>
                     <array>
                       <data>
-                        <value><string>memo</string></value>
-                        <value><string>like</string></value>
-                        <value><string>%${referenceValue}%</string></value>
+                        <value><string>reference</string></value>
+                        <value><string>=</string></value>
+                        <value><string>${referenceValue}</string></value>
                       </data>
                     </array>
                   </value>
@@ -85,8 +85,8 @@ export async function GET() {
             <value>
               <array>
                 <data>
-                  <value><string>id</string></value>
-                  <value><string>memo</string></value>
+                  <value><string>amount</string></value>
+                  <value><string>payment_date</string></value>
                   <value><string>state</string></value>
                 </data>
               </array>
@@ -112,7 +112,7 @@ export async function GET() {
     const paymentResponseText = await paymentResponse.text();
     console.log('Payment response:', paymentResponseText);
 
-    const hasPayment = await checkPaymentStatus(uid, targetOrder);
+    const hasPayment = await checkPaymentStatus(uid, targetOrder, request);
 
     return NextResponse.json({ 
       success: true,
