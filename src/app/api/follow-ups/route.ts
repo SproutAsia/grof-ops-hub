@@ -14,14 +14,13 @@ export async function POST(request: Request) {
     }
 
     const { saleId, channels, notes } = await request.json();
-    console.log('Creating follow-up with data:', { saleId, channels, notes, userId: session.user.id });
+    console.log('Creating follow-up with data:', { saleId, channels, notes, userEmail: session.user.email });
 
     const followUp = await prisma.followUp.create({
       data: {
         saleId,
         channels,
         notes,
-        userId: session.user.id,
         userEmail: session.user.email || '',
       },
     });
