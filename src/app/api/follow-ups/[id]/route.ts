@@ -27,4 +27,32 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     console.error('Error deleting follow-up:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
+}
+
+export async function GET(request: Request, { params }: { params: { id: string } }) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const followUpId = params.id;
+    if (!followUpId) {
+      return NextResponse.json({ error: 'Follow-up ID is required' }, { status: 400 });
+    }
+
+    // Fetch the follow-up
+    const followUp = await prisma.followUp.findUnique({
+      where: { id: followUpId },
+    });
+
+    if (!followUp) {
+      return NextResponse.json({ error: 'Follow-up not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(followUp);
+  } catch (error) {
+    console.error('Error fetching follow-up:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
 } 
