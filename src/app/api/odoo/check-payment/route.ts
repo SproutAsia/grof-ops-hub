@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server';
 import { URL } from 'url';
 
-// Parse Odoo URL
-const odooUrl = new URL(process.env.ODOO_URL!);
+// Parse Odoo URL only if it exists
+let odooUrl: URL | null = null;
+if (process.env.ODOO_URL) {
+  try {
+    odooUrl = new URL(process.env.ODOO_URL);
+  } catch (error) {
+    console.error('Invalid ODOO_URL:', error);
+  }
+}
 
 // Helper function to extract value from XML-RPC response
 function extractValueFromXmlResponse(xmlText: string): any {
@@ -16,6 +23,10 @@ function extractValueFromXmlResponse(xmlText: string): any {
 // Connect to Odoo and get UID
 async function connectToOdoo() {
   try {
+    if (!process.env.ODOO_URL || !process.env.ODOO_DB || !process.env.ODOO_USERNAME || !process.env.ODOO_PASSWORD) {
+      throw new Error('Missing required Odoo environment variables');
+    }
+
     const xmlRequest = `<?xml version="1.0"?>
 <methodCall>
   <methodName>authenticate</methodName>
