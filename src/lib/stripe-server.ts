@@ -10,6 +10,17 @@ const stripe = !isBuild && process.env.STRIPE_SECRET_KEY
     })
   : null;
 
+// Export the Stripe client
+export { stripe };
+
+// Helper function to get the Stripe client safely
+export function getStripeClient() {
+  if (isBuild || !stripe) {
+    throw new Error('Stripe client is not available in build environment or missing API key');
+  }
+  return stripe;
+}
+
 export async function getPaymentIntent(paymentIntentId: string) {
   if (isBuild || !stripe) {
     return null;
