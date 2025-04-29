@@ -1,4 +1,4 @@
-import { XmlRpcClient } from '@foxglove/xmlrpc';
+import * as xmlrpc from 'xmlrpc';
 
 interface Payment {
   id: number;
@@ -21,20 +21,20 @@ const RENEWAL_COLLECTION_DB = process.env.ODOO_DB || '';
 const RENEWAL_COLLECTION_USERNAME = process.env.ODOO_USERNAME || '';
 const RENEWAL_COLLECTION_PASSWORD = process.env.ODOO_PASSWORD || '';
 
-let commonClient: XmlRpcClient | null = null;
-let objectClient: XmlRpcClient | null = null;
+let commonClient: xmlrpc.Client | null = null;
+let objectClient: xmlrpc.Client | null = null;
 let renewalCollectionUid: number | null = null;
 
 const getCommonClient = async () => {
   if (!commonClient) {
-    commonClient = new XmlRpcClient(RENEWAL_COLLECTION_URL + '/xmlrpc/2/common');
+    commonClient = xmlrpc.createClient(RENEWAL_COLLECTION_URL + '/xmlrpc/2/common');
   }
   return commonClient;
 };
 
 const getObjectClient = async () => {
   if (!objectClient) {
-    objectClient = new XmlRpcClient(RENEWAL_COLLECTION_URL + '/xmlrpc/2/object');
+    objectClient = xmlrpc.createClient(RENEWAL_COLLECTION_URL + '/xmlrpc/2/object');
   }
   return objectClient;
 };
@@ -42,13 +42,19 @@ const getObjectClient = async () => {
 const getRenewalCollectionUid = async () => {
   if (!renewalCollectionUid) {
     const client = await getCommonClient();
-    const result = await client.methodCall('authenticate', [
-      RENEWAL_COLLECTION_DB,
-      RENEWAL_COLLECTION_USERNAME,
-      RENEWAL_COLLECTION_PASSWORD,
-      {},
-    ]);
-    renewalCollectionUid = Number(result);
+    if (!client) throw new Error('Failed to create XML-RPC client');
+    
+    renewalCollectionUid = await new Promise<number>((resolve, reject) => {
+      client.methodCall('authenticate', [
+        RENEWAL_COLLECTION_DB,
+        RENEWAL_COLLECTION_USERNAME,
+        RENEWAL_COLLECTION_PASSWORD,
+        {},
+      ], (err, result) => {
+        if (err) reject(err);
+        else resolve(Number(result));
+      });
+    });
   }
   return renewalCollectionUid;
 };
@@ -66,6 +72,7 @@ const extractNumericId = (soNumber: any): number => {
 export const fetchRenewalCollectionData = async () => {
   try {
     const objectClient = await getObjectClient();
+    if (!objectClient) throw new Error('Failed to create XML-RPC client');
     const uid = await getRenewalCollectionUid();
 
     // Get the last 4 weeks dates (excluding current week)
@@ -83,26 +90,31 @@ export const fetchRenewalCollectionData = async () => {
     const beginningDate = new Date('2024-02-28');
 
     // Fetch all sales orders from beginning to end of last week
-    const salesOrdersResponse = await objectClient.methodCall('execute_kw', [
-      RENEWAL_COLLECTION_DB,
-      uid,
-      RENEWAL_COLLECTION_PASSWORD,
-      'sale.order',
-      'search_read',
-      [
+    const salesOrdersResponse = await new Promise<any>((resolve, reject) => {
+      objectClient.methodCall('execute_kw', [
+        RENEWAL_COLLECTION_DB,
+        uid,
+        RENEWAL_COLLECTION_PASSWORD,
+        'sale.order',
+        'search_read',
         [
-          ['date_order', '>=', beginningDate.toISOString().split('T')[0]],
-          ['date_order', '<=', weeks[0].end.toISOString().split('T')[0]],
+          [
+            ['date_order', '>=', beginningDate.toISOString().split('T')[0]],
+            ['date_order', '<=', weeks[0].end.toISOString().split('T')[0]],
+          ],
+          [
+            'id',
+            'amount_total',
+            'date_order',
+            'x_studio_existing_subs_from_chargebee',
+            'name',
+          ],
         ],
-        [
-          'id',
-          'amount_total',
-          'date_order',
-          'x_studio_existing_subs_from_chargebee',
-          'name',
-        ],
-      ],
-    ]);
+      ], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
 
     const salesOrders = salesOrdersResponse as unknown as SalesOrder[];
 
@@ -132,31 +144,58 @@ export const fetchRenewalCollectionData = async () => {
     const allPayments = allPaymentsResponse as unknown as Payment[];
     console.log('All Payment States:', Array.from(new Set(allPayments.map(p => p.x_studio_payment_state_1))));
 
-    // Now fetch payments with the correct state
-    const paymentsResponse = await objectClient.methodCall('execute_kw', [
-      RENEWAL_COLLECTION_DB,
-      uid,
-      RENEWAL_COLLECTION_PASSWORD,
-      'account.payment',
-      'search_read',
-      [
+    // Fetch payments for each sales order
+    const paymentsResponse = await new Promise<any>((resolve, reject) => {
+      objectClient.methodCall('execute_kw', [
+        RENEWAL_COLLECTION_DB,
+        uid,
+        RENEWAL_COLLECTION_PASSWORD,
+        'account.payment',
+        'search_read',
         [
-          ['state', '!=', 'draft'],
-          ['x_studio_payment_state_1', 'in', ['Paid', 'paid', 'PAID']], // Try different case variations
-          ['date', '>=', beginningDate.toISOString().split('T')[0]],
-          ['date', '<=', weeks[0].end.toISOString().split('T')[0]],
+          [
+            ['x_studio_related_field_2p3_1iptocq6m', 'in', salesOrders.map(so => so.id)],
+          ],
+          [
+            'id',
+            'amount',
+            'date',
+            'x_studio_related_field_2p3_1iptocq6m',
+            'x_studio_payment_state_1',
+          ],
         ],
-        [
-          'id',
-          'amount',
-          'date',
-          'x_studio_related_field_2p3_1iptocq6m',
-          'x_studio_payment_state_1',
-        ],
-      ],
-    ]);
+      ], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
 
     const payments = paymentsResponse as unknown as Payment[];
+
+    // Fetch subscription data for each sales order
+    const subscriptionResponse = await new Promise<any>((resolve, reject) => {
+      objectClient.methodCall('execute_kw', [
+        RENEWAL_COLLECTION_DB,
+        uid,
+        RENEWAL_COLLECTION_PASSWORD,
+        'sale.subscription',
+        'search_read',
+        [
+          [
+            ['sale_order', 'in', salesOrders.map(so => so.id)],
+          ],
+          [
+            'id',
+            'sale_order',
+            'recurring_next_date',
+            'recurring_total',
+          ],
+        ],
+      ], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
 
     // Debug: Log payments
     console.log('Filtered Payments:', payments.map(p => ({
